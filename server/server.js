@@ -7,12 +7,24 @@ const app = express()
 const server = http.createServer(app)
 const io = socketIo(server, {
   cors: {
-    origin: "http://localhost:3000",
+    origin: process.env.CORS_ORIGIN || [
+      "http://localhost:3000",
+      "https://localhost:3000",
+      "https://*.vercel.app"
+    ],
     methods: ["GET", "POST"],
+    credentials: true
   },
 })
 
-app.use(cors())
+app.use(cors({
+  origin: process.env.CORS_ORIGIN || [
+    "http://localhost:3000",
+    "https://localhost:3000", 
+    "https://*.vercel.app"
+  ],
+  credentials: true
+}))
 app.use(express.json())
 
 // In-memory storage (in production, use a database)
