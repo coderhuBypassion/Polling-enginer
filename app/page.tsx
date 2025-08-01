@@ -53,7 +53,22 @@ type AppState =
   | "kicked-out"
 
 // Initialize socket connection
-const socket = io(process.env.NEXT_PUBLIC_SOCKET_URL || "http://localhost:5000", {
+const getSocketUrl = () => {
+  // Force production URL if in production
+  if (typeof window !== 'undefined' && window.location.hostname !== 'localhost') {
+    return 'https://polling-enginer-production.up.railway.app'
+  }
+  return process.env.NEXT_PUBLIC_SOCKET_URL || "http://localhost:5000"
+}
+
+const socketUrl = getSocketUrl()
+console.log('🔗 Connecting to socket URL:', socketUrl)
+console.log('🌍 Environment variables:', {
+  NEXT_PUBLIC_SOCKET_URL: process.env.NEXT_PUBLIC_SOCKET_URL,
+  hostname: typeof window !== 'undefined' ? window.location.hostname : 'server'
+})
+
+const socket = io(socketUrl, {
   transports: ['websocket', 'polling'],
   upgrade: true,
   rememberUpgrade: true,

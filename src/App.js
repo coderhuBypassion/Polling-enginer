@@ -23,7 +23,15 @@ import { setUserRole, setUserName, setAuthenticated, setHasAnswered, setKickedOu
 import { setMessages, addMessage } from "./store/slices/chatSlice"
 import "./App.css"
 
-const socket = io(process.env.NEXT_PUBLIC_SOCKET_URL || "http://localhost:5000", {
+const getSocketUrl = () => {
+  // Force production URL if in production
+  if (typeof window !== 'undefined' && window.location.hostname !== 'localhost') {
+    return 'https://polling-enginer-production.up.railway.app'
+  }
+  return process.env.NEXT_PUBLIC_SOCKET_URL || "http://localhost:5000"
+}
+
+const socket = io(getSocketUrl(), {
   transports: ['websocket', 'polling'],
   upgrade: true,
   rememberUpgrade: true,

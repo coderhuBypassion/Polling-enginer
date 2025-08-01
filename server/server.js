@@ -11,6 +11,7 @@ const allowedOrigins = [
   "http://localhost:3000",
   "https://localhost:3000",
   "https://polling-system-q3ae9g2t9-rahul-kottaks-projects.vercel.app",
+  "https://polling-system-5q1r9nk8k-rahul-kottaks-projects.vercel.app",
   process.env.FRONTEND_URL
 ].filter(Boolean)
 
