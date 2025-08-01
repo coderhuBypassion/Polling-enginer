@@ -1,0 +1,12 @@
+[build]
+builder = "nixpacks"
+
+[deploy]
+startCommand = "cd server && npm start"
+restartPolicyType = "always"
+
+[build.env]
+NODE_ENV = "production"
+
+[deploy.env]
+PORT = { default = "5000" }
