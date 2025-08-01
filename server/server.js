@@ -5,25 +5,29 @@ const cors = require("cors")
 
 const app = express()
 const server = http.createServer(app)
+
+// Define allowed origins
+const allowedOrigins = [
+  "http://localhost:3000",
+  "https://localhost:3000",
+  "https://polling-system-q3ae9g2t9-rahul-kottaks-projects.vercel.app",
+  process.env.FRONTEND_URL
+].filter(Boolean)
+
 const io = socketIo(server, {
   cors: {
-    origin: process.env.CORS_ORIGIN || [
-      "http://localhost:3000",
-      "https://localhost:3000",
-      "https://*.vercel.app"
-    ],
+    origin: allowedOrigins,
     methods: ["GET", "POST"],
-    credentials: true
+    credentials: true,
+    allowEIO3: true
   },
 })
 
 app.use(cors({
-  origin: process.env.CORS_ORIGIN || [
-    "http://localhost:3000",
-    "https://localhost:3000", 
-    "https://*.vercel.app"
-  ],
-  credentials: true
+  origin: allowedOrigins,
+  credentials: true,
+  methods: ["GET", "POST", "PUT", "DELETE"],
+  allowedHeaders: ["Content-Type", "Authorization"]
 }))
 app.use(express.json())
 
@@ -36,7 +40,10 @@ const pollResponses = new Map()
 
 // Socket.io connection handling
 io.on("connection", (socket) => {
-  console.log("User connected:", socket.id)
+  console.log("User connected:", socket.id, "from origin:", socket.handshake.headers.origin)
+
+  // Add connection confirmation
+  socket.emit("connection-confirmed", { socketId: socket.id, timestamp: new Date() })
 
   // Handle teacher joining
   socket.on("join-as-teacher", () => {
@@ -187,6 +194,14 @@ io.on("connection", (socket) => {
 })
 
 // REST API endpoints
+app.get("/", (req, res) => {
+  res.json({ 
+    message: "Polling System Backend is running!",
+    timestamp: new Date(),
+    cors_origins: allowedOrigins 
+  })
+})
+
 app.get("/api/poll-history", (req, res) => {
   res.json(pollHistory)
 })
@@ -198,4 +213,6 @@ app.get("/api/current-poll", (req, res) => {
 const PORT = process.env.PORT || 5000
 server.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`)
+  console.log(`Allowed CORS origins:`, allowedOrigins)
+  console.log(`Environment: ${process.env.NODE_ENV}`)
 })

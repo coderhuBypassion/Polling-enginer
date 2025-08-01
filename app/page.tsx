@@ -53,7 +53,13 @@ type AppState =
   | "kicked-out"
 
 // Initialize socket connection
-const socket = io(process.env.NEXT_PUBLIC_SOCKET_URL || "http://localhost:5000")
+const socket = io(process.env.NEXT_PUBLIC_SOCKET_URL || "http://localhost:5000", {
+  transports: ['websocket', 'polling'],
+  upgrade: true,
+  rememberUpgrade: true,
+  timeout: 20000,
+  forceNew: true
+})
 
 export default function IntervuePollSystem() {
   const [userRole, setUserRole] = useState<UserRole>(null)
@@ -78,6 +84,23 @@ export default function IntervuePollSystem() {
 
   // Socket event listeners
   useEffect(() => {
+    // Add connection debugging
+    socket.on("connect", () => {
+      console.log("✅ Connected to server:", socket.id)
+    })
+
+    socket.on("disconnect", () => {
+      console.log("❌ Disconnected from server")
+    })
+
+    socket.on("connect_error", (error) => {
+      console.error("🚨 Connection error:", error)
+    })
+
+    socket.on("connection-confirmed", (data) => {
+      console.log("🔗 Connection confirmed:", data)
+    })
+
     socket.on("teacher-joined", (data) => {
       console.log("Teacher joined data:", data)
       setCurrentQuestion(data.currentPoll)

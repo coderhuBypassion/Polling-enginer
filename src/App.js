@@ -23,7 +23,13 @@ import { setUserRole, setUserName, setAuthenticated, setHasAnswered, setKickedOu
 import { setMessages, addMessage } from "./store/slices/chatSlice"
 import "./App.css"
 
-const socket = io(process.env.NEXT_PUBLIC_SOCKET_URL || "http://localhost:5000")
+const socket = io(process.env.NEXT_PUBLIC_SOCKET_URL || "http://localhost:5000", {
+  transports: ['websocket', 'polling'],
+  upgrade: true,
+  rememberUpgrade: true,
+  timeout: 20000,
+  forceNew: true
+})
 
 function AppContent() {
   const dispatch = useDispatch()
